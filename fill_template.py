@@ -59,9 +59,19 @@ def render_lines_with(template_fillings, template_lines):
     for line in template_lines:
         matches = re.finditer(r'{{([^}]+)}}', line)
         for match in matches:
-            line = line.replace(match.group(0), template_fillings[match.group(1).strip()])
+            current_filling = get_filling_for(match.group(1).strip(), match.group(0), template_fillings)
+            line = line.replace(match.group(0), current_filling)
         output.append(line)
     return output
+
+# Code smell envy --> own dict class
+def get_filling_for(variable_name, variable_representation, template_fillings):
+    ret = ''
+    try:
+        ret = template_fillings[variable_name]
+    except KeyError as e:
+        raise VariableNotDefinedError(variable_representation)
+    return ret
 
 def write_lines(rendered_lines, output_file):
     with open(output_file, 'w') as f:
@@ -69,6 +79,11 @@ def write_lines(rendered_lines, output_file):
 
 def print_usage():
     print("Usage: " + sys.argv[0] + " template_name output_name")
+
+class VariableNotDefinedError(KeyError):
+    def __init__(self, variable_representation):
+        self.message = 'Variable ' + variable_representation + ' was found, but not defined!'
+        self.variable = variable_representation
 
 if __name__ == "__main__":
     main()
