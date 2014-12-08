@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
-from fill_template import (get_variables_from,
+from replazer import (get_variables_from,
                            render_lines_with,
                            VariableNotDefinedError)
 
